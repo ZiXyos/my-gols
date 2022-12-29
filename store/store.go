@@ -3,7 +3,6 @@ package store
 import (
 	"errors"
 	"io/fs"
-	"log"
 )
 
 type LStore interface {
@@ -13,53 +12,65 @@ type LStore interface {
 	Get(key string) (fs.FileInfo, error);
 };
 
-type LInfo struct {
+type List[T interface{}] struct {
 
-	_data fs.FileInfo;
-	Next *LInfo;
+	Head *LInfo[T];
+	Tail *LInfo[T]
 }
 
-func (l* LInfo) Pop() error {
+type LInfo[T interface{}] struct {
+
+	_data T;
+	_next *LInfo[T];
+	_prev *LInfo[T];
+}
+
+func (l* LInfo[T]) IsEmpty() bool {
+
+	return l == nil;
+}
+
+func (l* List[T]) GetSize() int {
+
+	var i int = 0;
+	if l == nil {
+		return i;
+	}
+
+	tmp := l;
+	node := tmp.Head;
+
+	for ; node._next.IsEmpty(); i++ {
+		node = node._next;
+	}
+
+	return i + 1;
+}
+
+func (l* List[T]) Pop() error {
+
+	return nil;
+}
+
+func (l* List[T]) Push(item T) error {
 
 	if l == nil {
-		return errors.New("no elem to remove");
+		return errors.New("error at init of list");
 	}
 
-	tmp := (*l.Next)
-	l = (&tmp);
+	tmp := LInfo[T]{_data: item};
+	if l.Head != nil {
+
+		tmp._next = l.Head;
+		tmp._prev = l.Tail;
+		l.Tail = (&tmp);
+	}
+		
+	l.Head = (&tmp);
 	return nil;
 }
 
-func (l* LInfo) Push(item fs.FileInfo) error {
+func (l* LInfo[T]) Get(key string) (fs.FileInfo, error) {
 
-	if item == nil {
-		return errors.New("no item send");
-	}
-
-	tmp := LInfo{_data: item};
-	if l != nil {
-		tmp.Next = l;
-		l = (&tmp);
-	}
-	l = (&tmp);
-
-	log.Println(l._data.Name());	
-	return nil;
-}
-
-func (l* LInfo) Get(key string) (fs.FileInfo, error) {
-
-	if len(key) == 0 || l == nil {
-		return nil, errors.New("nothing to find here");
-	}
-
-	tmp := (*l);
-	for ; tmp.Next != nil; tmp = (*tmp.Next) {
-
-		if tmp._data.Name() == key {
-
-			return tmp._data, nil;
-		}
-	} 
-	return nil, errors.New("no file found");
+	return nil, nil;
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/fs"
 	"io/ioutil"
 	"log"
 	"os"
@@ -22,14 +23,13 @@ func main() {
 
 	files, err := ioutil.ReadDir("./");
 	isError(err);
-	
-	items := new(store.LInfo);
+	items := store.List[fs.FileInfo]{ Head: nil, Tail: nil};
 	for _, v := range files {
 		
 		ok := items.Push(v); if ok != nil {
 
 			panic(ok);
 		}
-		log.Println(items.Get(v.Name()));
+		log.Println("[Log]: ", items.Head);
 	}
 }
