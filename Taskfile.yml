@@ -1,0 +1,9 @@
+version: '3'
+
+tasks:
+  build:
+    cmds:
+      - go build -race -o /bin/.prod/go-ls main.go
+  dev:
+    cmds:
+      - go build -race -o bin/go-ls -gcflags="-N -m -l" main.go
